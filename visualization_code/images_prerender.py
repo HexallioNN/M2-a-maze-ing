@@ -14,6 +14,13 @@ class ImgData():
         self.iformat = 0
 
 
+class Button():
+    def __init__(self, body: str, colour: int):
+        self.image = ImgData()
+        self.body = body
+        self.colour = colour
+
+
 class Tile():
     north = False
     east = False
@@ -188,3 +195,73 @@ def pre_render_tiles(m: Mlx, mlx_ptr: int, height: int, Colours: dict = {
                     tile.image.data[offset:offset+4] = tunnel_colour
     other_tiles = special_tiles(m, mlx_ptr, height, Colours)
     return (tiles + other_tiles)
+
+
+regenerate = Button("button_img/regen_button_1.png",
+                    (0xEE00EE00).to_bytes(4, 'little'))
+show_path = Button("button_img/Colour_button_1.png",
+                   (0xEE0000EE).to_bytes(4, 'little'))
+change_colours = Button("button_img/Colour_button_1.png",
+                        (0xEEEE0000).to_bytes(4, 'little'))
+change_logo_colours = Button("button_img/Logo_button_1.png",
+                             (0xEEEE00EE).to_bytes(4, 'little'))
+change_maze_algo = Button("button_img/Algo_button_1.png",
+                          (0xEE00EEEE).to_bytes(4, 'little'))
+buttons = [
+    regenerate, show_path, change_colours,
+    change_logo_colours, change_maze_algo
+]
+
+
+def pre_render_ui_env(m: Mlx, mlx_ptr: int, dimensions: tuple) -> ImgData:
+    x, y = dimensions
+    image = ImgData()
+    image.img = m.mlx_new_image(mlx_ptr, x, y)
+    image.width = x
+    image.height = y
+    image.data, image.bpp, image.sl, image.iformat = \
+        m.mlx_get_data_addr(image.img)
+    sl = image.sl
+    print(x, y)
+    for offset in range(0, sl * y, 4):
+        if (offset / sl <= 10) or offset / sl >= (y - 10):
+            image.data[offset:offset+4] = (0xFFFFFFFF).to_bytes(4, 'little')
+        if (offset % sl <= 40) or offset % sl >= sl - 40:
+            image.data[offset:offset+4] = (0xFFFFFFFF).to_bytes(4, 'little')
+    return (image)
+
+
+def pre_render_empty(m: Mlx, mlx_ptr: int, dimensions: tuple) -> ImgData:
+    x, y = dimensions
+    image = ImgData()
+    image.img = m.mlx_new_image(mlx_ptr, x, y)
+    image.width = x
+    image.height = y
+    image.data, image.bpp, image.sl, image.iformat = \
+        m.mlx_get_data_addr(image.img)
+    sl = image.sl
+    print(x, y)
+    for offset in range(0, sl * y, 4):
+        image.data[offset:offset+4] = (0xFF000000).to_bytes(4, 'little')
+    return (image)
+
+
+def pre_render_button(m: Mlx, mlx_ptr: int) -> list[Button]:
+    for button in buttons:
+        url = button.body
+        button.image.img = m.mlx_png_file_to_image(
+            mlx_ptr, url)
+        button.image.width = button.image.img[1]
+        button.image.height = button.image.img[2]
+        button.image.data, button.image.bpp, button.image.sl, \
+            button.image.iformat = m.mlx_get_data_addr(button.image.img[0])
+    # for button in buttons:
+    #     m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, button.image.img[0])
+    #     for offset in range(0, button.image.sl * button.image.height, 4):
+    #         if (button.image.data[offset:offset+4].tobytes() <=
+    #                 (0xFFFFFFFF).to_bytes(4, 'little')
+    #                 and button.image.data[offset:offset+4].tobytes() >=
+    #                 (0xFFEFEFEF).to_bytes(4, 'little')):
+    #             button.image.data[offset:offset+4] = \
+    #                 (0x000000).to_bytes(4, 'little')
+    return (buttons)
