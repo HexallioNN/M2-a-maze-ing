@@ -36,7 +36,7 @@ class Maze:
 
     def embed_42(self):
         logo_cells = set()
-        cx = (self.nx // 2) - 4
+        cx = (self.nx // 2) - 3
         cy = (self.ny // 2) - 2
 
         for y in range(cy, cy + 3):
@@ -82,7 +82,13 @@ class Maze:
         self.nx = config["width"]
         self.ny = config["height"]
         if config["42_pattern"]:
-            self.embed_42() 
+            self.embed_42()
+            entry = (config["entry"][0], config["entry"][1])
+            exit_ = (config["exit"][0], config["exit"][1])
+            if entry in self.logo_cells:
+                raise ValueError("ENTRY point conflicts with the 42 pattern")
+            if exit_ in self.logo_cells:
+                raise ValueError("EXIT point conflicts with the 42 pattern")
         n = self.nx * self.ny
         if config["42_pattern"]:
             n -= 18
