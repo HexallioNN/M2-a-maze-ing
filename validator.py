@@ -15,7 +15,7 @@ def validate_config(data: dict) -> dict:
     if width <= 0 or height <= 0:
         raise ValueError("WIDTH and HEIGHT must be > 0")
 
-    if width <= 7 or height <= 5:
+    if width <= 8 or height <= 6:
         print("Maze size is too small for 42 pattern")
         pattern = False
 
