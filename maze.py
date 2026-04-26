@@ -15,12 +15,12 @@ class Cell:
 
 
 class Maze:
-    def __init__(self, nx, ny, ix=0, iy=0):
+    def __init__(self, nx: int, ny: int, ix: int = 0, iy: int = 0):
         self.nx, self.ny = nx, ny
         self.ix, self.iy = ix, iy
         self.maze_map = [[Cell(x, y) for y in range(ny)] for x in range(nx)]
 
-    def cell_at(self, x, y):
+    def cell_at(self, x: int, y: int) -> Cell:
         return self.maze_map[x][y]
 
     def get_unvisited_neighbors(self, cell) -> list:
@@ -73,6 +73,45 @@ class Maze:
                 if 0 <= nx < self.nx and 0 <= ny < self.ny:
                     self.cell_at(nx, ny).walls[opposite[direction]] = True
 
+    def has_large_open_area(self, x: int, y: int) -> bool:
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                bx, by = x + dx, y + dy
+                if 0 <= bx < self.nx - 1 and 0 <= by < self.ny - 1:
+                    a = self.cell_at(bx, by)
+                    b = self.cell_at(bx + 1, by)
+                    c = self.cell_at(bx, by + 1)
+                    if (not a.walls['E'] and not a.walls['S'] and not
+                       b.walls['S'] and not c.walls['E']):
+                        return True
+        return False
+
+    def make_imperfect(self):
+        walls = []
+        for x in range(self.nx):
+            for y in range(self.ny):
+                cell = self.cell_at(x, y)
+                if cell.walls['E'] and x + 1 < self.nx:
+                    if (x + 1, y) not in self.logo_cells and (x, y) not in \
+                          self.logo_cells:
+                        walls.append((cell, 'E', self.cell_at(x + 1, y)))
+                if cell.walls['S'] and y + 1 < self.ny:
+                    if (x, y + 1) not in self.logo_cells and (x, y) not in \
+                       self.logo_cells:
+                        walls.append((cell, 'S', self.cell_at(x, y + 1)))
+        random.shuffle(walls)
+        target = len(walls) // 4
+        broken = 0
+        for cell, direction, neighbor in walls:
+            if broken > target:
+                break
+            cell.open_path(neighbor, direction)
+            if self.has_large_open_area(cell.x, cell.y):
+                cell.walls[direction] = True
+                neighbor.walls[Cell.wall_pairs[direction]] = True
+            else:
+                broken += 1
+
     def generate_maze(self, config: dict) -> None:
         if config["seed"] is not None:
             random.seed(config["seed"])
@@ -113,6 +152,8 @@ class Maze:
             nv += 1
         if config["42_pattern"]:
             self.seal_logo_borders()
+        if not config["perfect"]:
+            self.make_imperfect()
 
     def to_hex(self) -> list[str]:
         lines = []
