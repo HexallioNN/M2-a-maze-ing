@@ -316,3 +316,16 @@ def pre_render_button(m: Mlx, mlx_ptr: int) -> list[Button]:
                 button.image.data[offset:offset+4] = \
                     (0x00000000).to_bytes(4, 'little')
     return (buttons)
+
+
+def pre_loading(m: Mlx, mlx_ptr: int) -> ImgData:
+    image = ImgData()
+    url = "button_img/loading.png"
+    buffer_tuples = m.mlx_png_file_to_image(
+        mlx_ptr, url)
+    image.img = buffer_tuples[0]
+    image.width = buffer_tuples[1]
+    image.height = buffer_tuples[2]
+    image.data, image.bpp, image.sl, \
+        image.iformat = m.mlx_get_data_addr(image.img)
+    return (image)

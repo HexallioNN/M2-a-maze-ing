@@ -1,7 +1,7 @@
 from mlx import Mlx
 from images_prerender import pre_render_tiles as pre_render_images
 from images_prerender import pre_render_button, pre_render_ui_env, \
-    pre_render_empty, ImgData
+    pre_render_empty, ImgData, pre_loading
 from random import shuffle
 from config import load_config
 from maze import Maze
@@ -9,7 +9,7 @@ from timeit import default_timer as timer
 
 
 class Display():
-    maze_gen_on = False
+    loading = False
     maze_displayed = False
     path_displayed = False
     display_path = False
@@ -168,6 +168,7 @@ class Display():
         self.maze_clear = pre_render_empty(self.m, self.mlx_ptr,
                                            ((self.maze_width_pixels),
                                             (self.maze_height_pixels)))
+        self.loadning_img = pre_loading(self.m, self.mlx_ptr)
 
     def clear_maze(self) -> int:
         self.logo_displayed = False
@@ -197,7 +198,7 @@ class Display():
             for neighbour in self.neighbours:
                 x, y = neighbour
                 if x >= self.maze_width or y >= self.maze_height:
-                    self.valid_cells = self.valid_cells.remove((x, y))
+                    # self.valid_cells = self.valid_cells.remove((x, y))
                     continue
                 value = int(self.maze[y][x], 16)
                 if (value >> 0 & 1 != 1):
@@ -305,9 +306,9 @@ def mymouse(button, x, y, displaydata):
     print(f"Got mouse event! button {button} at {x},{y}.")
     if x > 1800:
         if y < 100:
-            displaydata.maze_gen_on = True
+            displaydata.loading = True
             displaydata.clear = True
-            new_maze_stuff(displaydata)
+            # new_maze_stuff(displaydata)
             displaydata.path_displayed = False
             displaydata.display_path = False
             # call maze gen
@@ -387,17 +388,20 @@ def mykey(keynum, displaydata):
 
 
 def render_next_frame(display: Display) -> int:
-    if display.maze_gen_on:
-        return (0)
     if not display.ui_displayed:
         display.display_ui()
         display.ui_displayed = True
     if display.clear and not display.cleared:
         display.clear_maze()
+        if display.loading:
+            display.img_to_window_mine(display.loadning_img, 400, 420)
         display.cleared = True
     elif display.cleared:
         display.clear = False
         display.cleared = False
+    elif display.loading:
+        new_maze_stuff(display)
+        display.clear = True
     elif not display.maze_displayed:
         if not display.logo_displayed:
             display.start = timer()
@@ -428,10 +432,10 @@ def new_maze_stuff(displaydata: Display):
     maze.to_hex()
     maze.write_output(config, "not yet done")
     displaydata.parsing()
-    displaydata.maze_gen_on = False
+    displaydata.loading = False
 
 
-def start_visualisation():
+def main():
     m = Mlx()
     mlx_ptr = m.mlx_init()
     window_width = 2000
@@ -466,4 +470,4 @@ def start_visualisation():
 
 
 if __name__ == "__main__":
-    start_visualisation()
+    main()
