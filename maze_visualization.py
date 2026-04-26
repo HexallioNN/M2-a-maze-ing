@@ -435,7 +435,7 @@ def new_maze_stuff(displaydata: Display):
     displaydata.loading = False
 
 
-def main():
+def start_visualisation():
     m = Mlx()
     mlx_ptr = m.mlx_init()
     window_width = 2000
@@ -470,4 +470,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    start_visualisation()
