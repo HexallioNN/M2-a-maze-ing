@@ -1,6 +1,7 @@
 import sys
 from config import load_config
 from maze import Maze
+from maze_visualization import start_visualisation
 
 
 if __name__ == "__main__":
@@ -16,3 +17,4 @@ if __name__ == "__main__":
     maze.generate_maze(config)
     grid = maze.to_hex()
     maze.write_output(config, "not yet done")
+    start_visualisation()
