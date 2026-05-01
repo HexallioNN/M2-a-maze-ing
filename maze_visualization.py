@@ -303,7 +303,7 @@ def mymouse(button, x, y, displaydata):
     m = displaydata.m
     win_ptr = displaydata.win_ptr
     mlx_ptr = displaydata.mlx_ptr
-    print(f"Got mouse event! button {button} at {x},{y}.")
+    print(f"Got mouse event! button {button} at {x}, {y}.")
     if x > 1800:
         if y < 100:
             displaydata.loading = True
@@ -349,7 +349,7 @@ def mykey(keynum, displaydata):
     win_ptr = displaydata.win_ptr
     mlx_ptr = displaydata.mlx_ptr
     # ratio = displaydata.ratio
-    print(f"Got key {keynum}, and got my stuff back:")
+    print(f"Got key {keynum}, and got my stuff back: ")
     if keynum == 32:
         m.mlx_mouse_hook(win_ptr, None, None)
     elif keynum == 65307:

@@ -134,7 +134,7 @@ class Maze:
         if config["42_pattern"]:
             n -= 18
 
-        cell_stack = []
+        cell_stack: list = []
         current_cell = self.cell_at(self.ix, self.iy)
         current_cell.visited = True
         nv = 1
@@ -185,6 +185,6 @@ class Maze:
             for line in lines:
                 f.write(line + '\n')
             f.write('\n')
-            f.write(f"{entry[0]},{entry[1]}\n")
-            f.write(f"{exit_[0]},{exit_[1]}\n")
+            f.write(f"{entry[0]}, {entry[1]}\n")
+            f.write(f"{exit_[0]}, {exit_[1]}\n")
             f.write(f"{path}\n")

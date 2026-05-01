@@ -4,7 +4,8 @@ from maze import Maze
 from maze_visualization import start_visualisation
 from collections import deque
 
-def get_neighbors(maze: Maze, x:int , y:int) -> list:
+
+def get_neighbors(maze: Maze, x: int, y: int) -> list:
     directions = {
         'N': (0, -1),
         'S': (0, 1),
@@ -19,6 +20,7 @@ def get_neighbors(maze: Maze, x:int , y:int) -> list:
             if not cell.walls[dir_name]:
                 neighbors.append((nx, ny, dir_name))
     return neighbors
+
 
 def bfs_solver(maze, start, end):
     queue = deque([start])
@@ -45,7 +47,7 @@ def bfs_solver(maze, start, end):
         current = parent[current]
     path.reverse()
     return ''.join(path)
- 
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
