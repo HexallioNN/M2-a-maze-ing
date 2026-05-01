@@ -8,6 +8,7 @@ class Cell:
         self.x, self.y = x, y
         self.walls = {'N': True, 'S': True, 'E': True, 'W': True}
         self.visited = False
+        self.logo_cells = set()
 
     def open_path(self, other, wall):
         self.walls[wall] = False
@@ -113,6 +114,7 @@ class Maze:
                 broken += 1
 
     def generate_maze(self, config: dict) -> None:
+        self.logo_cells = set()
         if config["seed"] is not None:
             random.seed(config["seed"])
         else:
