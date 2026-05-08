@@ -9,7 +9,7 @@ build:
 	cp ./dist/mazegen-1.0.0-py3-none-any.whl .
 
 debug:
-	python3 -m pdb a_maze_ing.py default_config.txt
+	python3 -m pdb a_maze_ing.py config.txt
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
