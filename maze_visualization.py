@@ -4,7 +4,7 @@ from images_prerender import pre_render_button, pre_render_ui_env, \
     pre_render_empty, ImgData, pre_loading
 from random import shuffle
 from config import load_config
-from maze import Maze
+from mazegen.maze import Maze
 from timeit import default_timer as timer
 
 

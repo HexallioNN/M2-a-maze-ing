@@ -1,6 +1,6 @@
 import sys
 from config import load_config
-from maze import Maze
+from mazegen.maze import Maze
 from maze_visualization import start_visualisation
 from collections import deque
 
@@ -22,7 +22,7 @@ def get_neighbors(maze: Maze, x: int, y: int) -> list:
     return neighbors
 
 
-def bfs_solver(maze, start, end):
+def bfs_solver(maze: Maze, start, end) -> str:
     queue = deque([start])
     visited = set([start])
     parent = {start: None}
@@ -40,7 +40,7 @@ def bfs_solver(maze, start, end):
                 direction_from_parent[(nx, ny)] = dir_name
     if end not in parent:
         return "Maze not solveable"
-    path = []
+    path: list = []
     current = end
     while current != start:
         path.append(direction_from_parent[current])
