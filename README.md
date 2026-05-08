@@ -126,8 +126,6 @@ The generated maze guarantees:
 
 # Reusable Components
 
-Several parts of the project are reusable:
-
 ## Maze Generator
 The maze generation code can be downloaded using:
 
