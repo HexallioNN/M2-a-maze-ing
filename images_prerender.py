@@ -8,14 +8,14 @@ class ImgData():
         self.img = None
         self.width = 0
         self.height = 0
-        self.data = None
+        self.data: list[int] = list()
         self.sl = 0  # size line
         self.bpp = 0  # bits per pixel
         self.iformat = 0
 
 
 class Button():
-    def __init__(self, body: str, colour: int):
+    def __init__(self, body: str, colour: bytes):
         self.image = ImgData()
         self.body = body
         self.colour = colour
@@ -207,9 +207,12 @@ change_logo_colours = Button("button_img/button_change-logo.png",
                              (0xEEEE00EE).to_bytes(4, 'little'))
 change_maze_algo = Button("button_img/button_change-algorithm.png",
                           (0xEE00EEEE).to_bytes(4, 'little'))
+change_perfect = Button("button_img/button_perfect.png",
+                        (0xEE00EEEE).to_bytes(4, 'little'))
 buttons = [
     regenerate, show_path, change_colours,
-    change_logo_colours, change_maze_algo
+    change_logo_colours, change_maze_algo,
+    change_perfect
 ]
 
 unchecked_box = Tile(0)
@@ -229,7 +232,7 @@ def pre_render_ui_env(m: Mlx, mlx_ptr: int, dimensions: tuple,
         m.mlx_get_data_addr(image.img)
     sl = image.sl
     empty_space_hor, empty_space_ver = empty_space
-
+    m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, image.img)
     for offset in range(0, sl * y, 4):
         distance = offset % sl
         mod_16 = distance % 16
@@ -276,8 +279,8 @@ def pre_render_empty(m: Mlx, mlx_ptr: int, dimensions: tuple) -> ImgData:
     image.height = y
     image.data, image.bpp, image.sl, image.iformat = \
         m.mlx_get_data_addr(image.img)
+    m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, image.img)
     sl = image.sl
-    # print(x, y)
     for offset in range(0, sl * y, 4):
         image.data[offset:offset+4] = (0xFF000000).to_bytes(4, 'little')
     return (image)
@@ -306,15 +309,15 @@ def pre_render_button(m: Mlx, mlx_ptr: int) -> list[Button]:
             for offset in range(0, button.image.sl * button.image.height, 4):
                 button.image.data[offset:offset+4] = \
                     (0xFFFF0000).to_bytes(4, 'little')
-    for button in buttons:
-        m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, button.image.img)
-        for offset in range(0, button.image.sl * button.image.height, 4):
-            if (button.image.data[offset:offset+4].tobytes() <=
-                    (0xFFFFFFFF).to_bytes(4, 'little')
-                    and button.image.data[offset:offset+4].tobytes() >=
-                    (0xFFFFFFFF).to_bytes(4, 'little')):
-                button.image.data[offset:offset+4] = \
-                    (0x00000000).to_bytes(4, 'little')
+    # for button in buttons:
+    #     m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, button.image.img)
+    #     for offset in range(0, button.image.sl * button.image.height, 4):
+    #         if (button.image.data[offset:offset+4].tobytes() <=
+    #                 (0xFFFFFFFF).to_bytes(4, 'little')
+    #                 and button.image.data[offset:offset+4].tobytes() >=
+    #                 (0xFFFFFFFF).to_bytes(4, 'little')):
+    #             button.image.data[offset:offset+4] = \
+    #                 (0x00000000).to_bytes(4, 'little')
     return (buttons)
 
 

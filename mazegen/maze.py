@@ -1,4 +1,5 @@
 import random
+from collections import deque
 
 
 class Cell:
@@ -8,6 +9,7 @@ class Cell:
         self.x, self.y = x, y
         self.walls = {'N': True, 'S': True, 'E': True, 'W': True}
         self.visited = False
+        self.in_maze = False
         self.logo_cells = set()
 
     def open_path(self, other, wall):
@@ -188,3 +190,117 @@ class Maze:
             f.write(f"{entry[0]}, {entry[1]}\n")
             f.write(f"{exit_[0]}, {exit_[1]}\n")
             f.write(f"{path}\n")
+
+    def Loop_erased_random_walk(self, config: dict):
+        if config["seed"] is not None:
+            random.seed(config["seed"])
+        else:
+            random.seed()
+        self.nx = config["width"]
+        self.ny = config["height"]
+        if config["42_pattern"]:
+            self.embed_42()
+            entry = (config["entry"][0], config["entry"][1])
+            exit_ = (config["exit"][0], config["exit"][1])
+            if entry in self.logo_cells:
+                raise ValueError("ENTRY point conflicts with the 42 pattern")
+            if exit_ in self.logo_cells:
+                raise ValueError("EXIT point conflicts with the 42 pattern")
+        valid_cells: set = set()
+        for row in self.maze_map:
+            temp_row = row.copy()
+            for cell in temp_row:
+                valid_cells.add(cell)
+        for coords in self.logo_cells:
+            x, y = coords
+            cell_data = self.cell_at(x, y)
+            if cell_data in valid_cells:
+                valid_cells.remove(cell_data)
+        start_cell = random.choice(list(valid_cells))
+        start_cell.in_maze = True
+        while valid_cells != set():
+            current_path = []
+            current_cell = random.choice(list(valid_cells))
+            current_path.append(current_cell)
+            prev_cell = None
+            while not current_cell.in_maze:
+                neighbours = self.get_unvisited_neighbors(current_cell)
+                if prev_cell in neighbours:
+                    neighbours.remove(prev_cell)
+                direction, neighbour = random.choice(neighbours)
+                if neighbour not in current_path:
+                    current_path.append(neighbour)
+                elif neighbour in current_path and not neighbour.in_maze:
+                    index = current_path.index(neighbour) + 1
+                    current_path = current_path[:index]
+                prev_cell = current_path[-1]
+                current_cell = neighbour
+            self.build_path(current_path)
+            valid_cells = self.prune_valid(valid_cells)
+        self.seal_logo_borders()
+        if not config["perfect"]:
+            self.make_imperfect()
+
+    def build_path(self, current_path: list):
+        prev_cell = current_path[0]
+        for cell in current_path:
+            cell.in_maze = True
+            if cell == prev_cell:
+                continue
+            else:
+                netto_x = cell.x - prev_cell.x
+                netto_y = cell.y - prev_cell.y
+                delta = {'N': (0, -1), 'S': (0, 1), 'E': (1, 0), 'W': (-1, 0)}
+                for direction, coords in delta.items():
+                    if coords == (netto_x, netto_y):
+                        prev_cell.open_path(cell, direction)
+            prev_cell = cell
+
+    def prune_valid(self, valid_cells: set):
+        output_set = valid_cells.copy()
+        for cell in valid_cells:
+            if cell.in_maze:
+                output_set.remove(cell)
+        return (output_set)
+
+    def get_neighbors(self, x: int, y: int) -> list:
+        directions = {
+            'N': (0, -1),
+            'S': (0, 1),
+            'E': (1, 0),
+            'W': (-1, 0)
+        }
+        neighbors = []
+        cell = self.cell_at(x, y)
+        for dir_name, (dx, dy) in directions.items():
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < self.nx and 0 <= ny < self.ny:
+                if not cell.walls[dir_name]:
+                    neighbors.append((nx, ny, dir_name))
+        return neighbors
+
+    def bfs_solver(self, start, end) -> str:
+        queue = deque([start])
+        visited = set([start])
+        parent = {start: None}
+        direction_from_parent = {start: None}
+
+        while queue:
+            current = queue.popleft()
+            if current == end:
+                break
+            for nx, ny, dir_name in self.get_neighbors(current[0], current[1]):
+                if (nx, ny) not in visited:
+                    visited.add((nx, ny))
+                    queue.append((nx, ny))
+                    parent[(nx, ny)] = current
+                    direction_from_parent[(nx, ny)] = dir_name
+        if end not in parent:
+            return "Maze not solveable"
+        path: list = []
+        current = end
+        while current != start:
+            path.append(direction_from_parent[current])
+            current = parent[current]
+        path.reverse()
+        return ''.join(path)
