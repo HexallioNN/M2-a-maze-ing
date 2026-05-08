@@ -4,7 +4,7 @@ from math import sqrt, pow, sin, cos, pi
 
 class ImgData():
     """Structure for image data"""
-    def __init__(self):
+    def __init__(self) -> None:
         self.img = None
         self.width = 0
         self.height = 0
@@ -309,15 +309,6 @@ def pre_render_button(m: Mlx, mlx_ptr: int) -> list[Button]:
             for offset in range(0, button.image.sl * button.image.height, 4):
                 button.image.data[offset:offset+4] = \
                     (0xFFFF0000).to_bytes(4, 'little')
-    # for button in buttons:
-    #     m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, button.image.img)
-    #     for offset in range(0, button.image.sl * button.image.height, 4):
-    #         if (button.image.data[offset:offset+4].tobytes() <=
-    #                 (0xFFFFFFFF).to_bytes(4, 'little')
-    #                 and button.image.data[offset:offset+4].tobytes() >=
-    #                 (0xFFFFFFFF).to_bytes(4, 'little')):
-    #             button.image.data[offset:offset+4] = \
-    #                 (0x00000000).to_bytes(4, 'little')
     return (buttons)
 
 

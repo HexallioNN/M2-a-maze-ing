@@ -20,7 +20,7 @@ class Display():
     end = float(0)
     sidebar = 200
     algo_change = False
-    logo_colours = [
+    logo_colours: list[bytes] = [
         (0xEEBA1BAF).to_bytes(4, "little"),
         (0xEE49BA1B).to_bytes(4, "little"),
         (0xEE8F2B0E).to_bytes(4, "little"),
@@ -30,25 +30,25 @@ class Display():
             {
                 "wall_colour": (0xEE9850AF).to_bytes(4, 'little'),
                 "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
-                "logo_colour": logo_colours[0],
+                "logo_colour": (0xEEBA1BAF).to_bytes(4, "little"),
                 "path_colour": (0xEE67AF50).to_bytes(4, "little")
             },
             {
                 "wall_colour": (0xEEF6092A).to_bytes(4, 'little'),
                 "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
-                "logo_colour": logo_colours[0],
+                "logo_colour": (0xEEBA1BAF).to_bytes(4, "little"),
                 "path_colour": (0xEE09F6D5).to_bytes(4, "little")
             },
             {
                 "wall_colour": (0xEE22DD4D).to_bytes(4, 'little'),
                 "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
-                "logo_colour": logo_colours[0],
+                "logo_colour": (0xEEBA1BAF).to_bytes(4, "little"),
                 "path_colour": (0xEEDD22B2).to_bytes(4, "little")
             },
             {
                 "wall_colour": (0xEE1634E9).to_bytes(4, 'little'),
                 "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
-                "logo_colour": logo_colours[0],
+                "logo_colour": (0xEEBA1BAF).to_bytes(4, "little"),
                 "path_colour": (0xEEE9CB16).to_bytes(4, "little")
             },
             ]
@@ -56,7 +56,8 @@ class Display():
     filled_in_cells: set[tuple] = set()
     path_pos = 0
 
-    def __init__(self, m: Mlx, mlx_ptr: int, win_ptr, dimensions: tuple):
+    def __init__(self, m: Mlx, mlx_ptr: int, win_ptr: int,
+                 dimensions: tuple) -> None:
         self.m = m
         self.mlx_ptr = mlx_ptr
         self.win_ptr = win_ptr
@@ -69,7 +70,7 @@ class Display():
                                        image.img, x, y)
         return (0)
 
-    def parsing(self):
+    def parsing(self) -> None:
         maze: list[list[str]] = []
         with open("config.txt", "r") as config_file:
             configs = dict(line.strip().split("=") for line in config_file)
@@ -114,7 +115,7 @@ class Display():
         self.pre_render_ui()
         self.display_ui()
 
-    def calc_ratio(self):
+    def calc_ratio(self) -> None:
         effective_width = self.width - self.sidebar - \
             (self.offset_hor / 2)
         effective_height = self.height - (self.offset_ver * 2)
@@ -141,7 +142,7 @@ class Display():
                                         self.colours[0])
         return (0)
 
-    def pre_render_ui(self):
+    def pre_render_ui(self) -> None:
         self.buttons = pre_render_button(self.m, self.mlx_ptr)
         self.ui = pre_render_ui_env(self.m, self.mlx_ptr, self.dimensions,
                                     (self.maze_width_pixels,

@@ -44,6 +44,22 @@ The program supports:
 
 ## Running the project
 
+We recommended excuting the following script to install the requirements in a virtual enviroment and run the project smoothly:
+
+```bash
+python -m venv venv
+source venv/bin/activate
+make install
+make run
+```
+
+in order to check the linting of this project run it in the virtual enviroment using
+
+```bash
+make lint
+make lint-strict
+```
+
 Execute:
 
 ```bash

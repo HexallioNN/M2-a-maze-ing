@@ -1,32 +1,33 @@
 import random
 from collections import deque
+from typing import Any
 
 
 class Cell:
     wall_pairs = {'N': 'S', 'S': 'N', 'E': 'W', 'W': 'E'}
 
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int) -> None:
         self.x, self.y = x, y
         self.walls = {'N': True, 'S': True, 'E': True, 'W': True}
         self.visited = False
         self.in_maze = False
-        self.logo_cells = set()
 
-    def open_path(self, other, wall):
+    def open_path(self, other: "Cell", wall: str) -> None:
         self.walls[wall] = False
         other.walls[Cell.wall_pairs[wall]] = False
 
 
 class Maze:
-    def __init__(self, nx: int, ny: int, ix: int = 0, iy: int = 0):
+    def __init__(self, nx: int, ny: int, ix: int = 0, iy: int = 0) -> None:
         self.nx, self.ny = nx, ny
         self.ix, self.iy = ix, iy
+        self.logo_cells: set = set()
         self.maze_map = [[Cell(x, y) for y in range(ny)] for x in range(nx)]
 
     def cell_at(self, x: int, y: int) -> Cell:
         return self.maze_map[x][y]
 
-    def get_unvisited_neighbors(self, cell) -> list:
+    def get_unvisited_neighbors(self, cell: Cell) -> list:
         neighbors = []
         delta = {'N': (0, -1), 'S': (0, 1), 'E': (1, 0), 'W': (-1, 0)}
         for direction, (dx, dy) in delta.items():
@@ -37,7 +38,7 @@ class Maze:
                     neighbors.append((direction, neighbor))
         return neighbors
 
-    def embed_42(self):
+    def embed_42(self) -> None:
         logo_cells = set()
         cx = (self.nx // 2) - 3
         cy = (self.ny // 2) - 2
@@ -67,7 +68,7 @@ class Maze:
 
         self.logo_cells = logo_cells
 
-    def seal_logo_borders(self):
+    def seal_logo_borders(self) -> None:
         opposite = {'N': 'S', 'S': 'N', 'E': 'W', 'W': 'E'}
         delta = {'N': (0, -1), 'S': (0, 1), 'E': (1, 0), 'W': (-1, 0)}
         for (x, y) in self.logo_cells:
@@ -89,7 +90,7 @@ class Maze:
                         return True
         return False
 
-    def make_imperfect(self):
+    def make_imperfect(self) -> None:
         walls = []
         for x in range(self.nx):
             for y in range(self.ny):
@@ -191,7 +192,7 @@ class Maze:
             f.write(f"{exit_[0]}, {exit_[1]}\n")
             f.write(f"{path}\n")
 
-    def Loop_erased_random_walk(self, config: dict):
+    def Loop_erased_random_walk(self, config: dict) -> None:
         if config["seed"] is not None:
             random.seed(config["seed"])
         else:
@@ -241,7 +242,7 @@ class Maze:
         if not config["perfect"]:
             self.make_imperfect()
 
-    def build_path(self, current_path: list):
+    def build_path(self, current_path: list) -> None:
         prev_cell = current_path[0]
         for cell in current_path:
             cell.in_maze = True
@@ -256,7 +257,7 @@ class Maze:
                         prev_cell.open_path(cell, direction)
             prev_cell = cell
 
-    def prune_valid(self, valid_cells: set):
+    def prune_valid(self, valid_cells: set) -> set:
         output_set = valid_cells.copy()
         for cell in valid_cells:
             if cell.in_maze:
@@ -279,12 +280,11 @@ class Maze:
                     neighbors.append((nx, ny, dir_name))
         return neighbors
 
-    def bfs_solver(self, start, end) -> str:
+    def bfs_solver(self, start: tuple, end: tuple) -> str:
         queue = deque([start])
         visited = set([start])
-        parent = {start: None}
+        parent: dict[tuple, Any] = {start: None}
         direction_from_parent = {start: None}
-
         while queue:
             current = queue.popleft()
             if current == end:

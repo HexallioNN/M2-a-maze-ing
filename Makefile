@@ -1,3 +1,7 @@
+VENV_NAME = a_maze_ing_env
+PYTHON = ${VENV_NAME}/bin/python
+
+
 install:
 	pip install -r requirements.txt
 
@@ -12,7 +16,7 @@ clean:
 	rm -rf .mypy_cache
 
 lint:
-	-m flake8
+	flake8 --exclude=./venv,mlx .
 	python3 -m mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \

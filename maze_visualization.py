@@ -6,13 +6,13 @@ from timeit import default_timer as timer
 from Display import Display
 
 
-def mymouse(button, x, y, displaydata):
-    # buttons = displaydata.buttons
+def mymouse(button: int, x: int, y: int, displaydata: Display) -> None:
     m = displaydata.m
     win_ptr = displaydata.win_ptr
     mlx_ptr = displaydata.mlx_ptr
-    print(f"Got mouse event! button {button} at {x},{y}.")
     boundary = displaydata.width - displaydata.sidebar
+    if button != 1:
+        return
     if x > boundary:
         if y < 100:
             update_configs((None, None))
@@ -38,8 +38,8 @@ def mymouse(button, x, y, displaydata):
                 while not displaydata.path_displayed:
                     displaydata.path_display()
         elif y < 400:
-            pre_colour = displaydata.logo_colours[0]
-            while pre_colour == displaydata.logo_colours[0]:
+            logo_pre_colour = displaydata.logo_colours[0]
+            while logo_pre_colour == displaydata.logo_colours[0]:
                 shuffle(displaydata.logo_colours)
             displaydata.update_logo_colour(displaydata.logo_colours[0])
             m.mlx_sync(mlx_ptr, displaydata.pre_render_images(), win_ptr)
@@ -68,12 +68,10 @@ def mymouse(button, x, y, displaydata):
     # scroll down is button 5
 
 
-def mykey(keynum, displaydata):
+def mykey(keynum: int, displaydata: Display) -> Display:
     m = displaydata.m
     win_ptr = displaydata.win_ptr
     mlx_ptr = displaydata.mlx_ptr
-    # ratio = displaydata.ratio
-    print(f"Got key {keynum}, and got my stuff back:")
     if keynum == 32:
         m.mlx_mouse_hook(win_ptr, None, None)
     elif keynum == 65307:
@@ -115,7 +113,7 @@ def close_window(display: Display) -> int:
     return (0)
 
 
-def render_next_frame(display: Display):
+def render_next_frame(display: Display) -> None:
     if not display.ui_displayed:
         if display.loading:
             display.img_to_window_mine(display.loading_img,
@@ -124,7 +122,7 @@ def render_next_frame(display: Display):
             display.loading = False
         elif display.start_up:
             display.parsing()
-            display.m.mlx_clear_window(display.mlx_ptr, display.win_ptr)
+            display.clear_maze()
             display.start_up = False
             display.m.SYNC_WIN_FLUSH
         else:
@@ -165,7 +163,7 @@ def render_next_frame(display: Display):
         display.m.SYNC_WIN_FLUSH
 
 
-def new_maze_stuff(displaydata: Display):
+def new_maze_stuff(displaydata: Display) -> None:
     try:
         config = load_config("config.txt")
     except FileNotFoundError:
@@ -179,11 +177,12 @@ def new_maze_stuff(displaydata: Display):
     maze.to_hex()
     path = maze.bfs_solver(config["entry"], config["exit"])
     maze.write_output(config, path)
-    displaydata.parsing()
-    displaydata.loading = False
+    if not displaydata.start_up:
+        displaydata.parsing()
+        displaydata.loading = False
 
 
-def update_configs(key_value: tuple):
+def update_configs(key_value: tuple) -> None:
     key_new, value_new = key_value
     try:
         config = load_config("config.txt")
@@ -209,7 +208,7 @@ def update_configs(key_value: tuple):
             file.write(f"{key.upper()}={value}\n")
 
 
-def start_visual():
+def start_visual() -> None:
     m = Mlx()
     mlx_ptr = m.mlx_init()
     window_width = 1700
@@ -219,25 +218,6 @@ def start_visual():
                                "test window")
     display = Display(m, mlx_ptr, win_ptr, (window_width, window_height))
     new_maze_stuff(display)
-    print(f"Got screen size: {w} x {h} . and whatever this is {ret}")
-    # dimensions = {
-    #     "window_width": window_width,
-    #     "window_height": window_height,
-    #     "sidebar_width": sidebar_width,
-    #     "window_width_effective": window_width_effective,
-    #     "Mlx": m,
-    #     "mlx_ptr": mlx_ptr,
-    #     "win_ptr": win_ptr,
-    #     "offset_horizontal": 10,
-    #     "offset_vertical": 10
-    # }
-    # mouse_data = {
-    #     "sidebar_width": sidebar_width,
-    #     "Mlx": m,
-    #     "mlx_ptr": mlx_ptr,
-    #     "win_ptr": win_ptr
-    # }
-    # display_data = parser(dimensions)
     m.mlx_loop_hook(display.mlx_ptr, render_next_frame, display)
     m.mlx_loop(mlx_ptr)
 
