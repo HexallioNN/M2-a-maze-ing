@@ -66,6 +66,8 @@ Execute:
 python3 a_maze_ing.py config.txt
 ```
 
+[![Watch the video](https://img.youtube.com/vi/XdJmmvgjhes/hqdefault.jpg)](https://www.youtube.com/embed/XdJmmvgjhes)
+
 ---
 
 # Config File Structure
