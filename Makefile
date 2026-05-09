@@ -16,7 +16,7 @@ clean:
 	rm -rf .mypy_cache
 
 lint:
-	flake8 --exclude=./venv,mlx .
+	-m flake8 .
 	python3 -m mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \
@@ -27,7 +27,7 @@ lint:
 		--exclude '^(venv|\.venv|env|mlx)/'
 
 lint-strict:
-	flake8 --exclude=.venv,mlx .
+	-m flake8 .
 	python3 -m mypy . \
 		--strict \
 		--explicit-package-bases \
