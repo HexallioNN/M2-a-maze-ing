@@ -66,8 +66,7 @@ Execute:
 python3 a_maze_ing.py config.txt
 ```
 
-[<img src="https://img.youtube.com/vi/XdJmmvgjhes/hqdefault.jpg" width="600" height="300"
-/>](https://www.youtube.com/embed/XdJmmvgjhes)
+[![Watch the video](https://img.youtube.com/vi/XdJmmvgjhes/hqdefault.jpg)](https://www.youtube.com/embed/XdJmmvgjhes)
 
 ---
 
