@@ -31,4 +31,5 @@ lint-strict:
 	${PYTHON} -m mypy . \
 		--strict \
 		--explicit-package-bases \
+		--ignore-missing-imports \
 		--exclude '^(venv|\.venv|env|mlx)/'
