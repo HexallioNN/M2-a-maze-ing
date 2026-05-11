@@ -1,7 +1,8 @@
 from validator import validate_config
+from typing import Any
 
 
-def load_config(path: str) -> dict:
+def load_config(path: str) -> dict[Any, Any]:
     data: dict[str, str] = {}
 
     with open(path) as f:

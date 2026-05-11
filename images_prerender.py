@@ -93,13 +93,14 @@ def init_tiles(m: Mlx, mlx_ptr: int, height: int, pre_tiles: list[Tile]) \
     return (pre_tiles)
 
 
-def special_tiles(m: Mlx, mlx_ptr: int, height: int, Colours: dict = {
-    "wall_colour": (0xEEFFFFFF).to_bytes(4, 'little'),
-    "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
-    "logo_colour": (0xEEFF00FF).to_bytes(4, "little"),
-    "path_colour": (0xEEFF0000).to_bytes(4, "little")
-}
-                     ) -> list[Tile]:
+def special_tiles(m: Mlx, mlx_ptr: int, height: int,
+                  Colours: dict[str, bytes] = {
+                      "wall_colour": (0xEEFFFFFF).to_bytes(4, 'little'),
+                      "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
+                      "logo_colour": (0xEEFF00FF).to_bytes(4, "little"),
+                      "path_colour": (0xEEFF0000).to_bytes(4, "little")
+                      }
+                  ) -> list[Tile]:
     path_colour = Colours["path_colour"]
     transparent = (0x00000000).to_bytes(4, "little")
     y = height
@@ -144,12 +145,13 @@ def special_tiles(m: Mlx, mlx_ptr: int, height: int, Colours: dict = {
     return (other_tiles)
 
 
-def pre_render_tiles(m: Mlx, mlx_ptr: int, height: int, Colours: dict = {
-    "wall_colour": (0xEEFFFFFF).to_bytes(4, 'little'),
-    "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
-    "logo_colour": (0xEEFF00FF).to_bytes(4, "little"),
-    "path_colour": (0xEEFFFF00).to_bytes(4, "little")
-}
+def pre_render_tiles(m: Mlx, mlx_ptr: int, height: int,
+                     Colours: dict[str, bytes] = {
+                         "wall_colour": (0xEEFFFFFF).to_bytes(4, 'little'),
+                         "tunnel_colour": (0xEE000000).to_bytes(4, 'little'),
+                         "logo_colour": (0xEEFF00FF).to_bytes(4, "little"),
+                         "path_colour": (0xEEFFFF00).to_bytes(4, "little")
+                         }
                      ) -> list[Tile]:
     wall_colour = Colours["wall_colour"]
     tunnel_colour = Colours["tunnel_colour"]
@@ -220,10 +222,9 @@ checked_box = Tile(0)
 boxes = [unchecked_box, checked_box]
 
 
-def pre_render_ui_env(m: Mlx, mlx_ptr: int, dimensions: tuple,
-                      empty_space: tuple) -> ImgData:
+def pre_render_ui_env(m: Mlx, mlx_ptr: int, dimensions: tuple[int, int, int],
+                      empty_space: tuple[int, int]) -> ImgData:
     x, y, sidebar = dimensions
-    # empty_space
     image = ImgData()
     image.img = m.mlx_new_image(mlx_ptr, x, y)
     image.width = x
@@ -271,7 +272,8 @@ def pre_render_ui_env(m: Mlx, mlx_ptr: int, dimensions: tuple,
     return (image)
 
 
-def pre_render_empty(m: Mlx, mlx_ptr: int, dimensions: tuple) -> ImgData:
+def pre_render_empty(m: Mlx, mlx_ptr: int,
+                     dimensions: tuple[int, int]) -> ImgData:
     x, y = dimensions
     image = ImgData()
     image.img = m.mlx_new_image(mlx_ptr, x, y)

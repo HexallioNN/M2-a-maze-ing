@@ -1,6 +1,6 @@
 import random
 from collections import deque
-from typing import Any
+from typing import Any, Tuple
 
 
 class Cell:
@@ -21,13 +21,13 @@ class Maze:
     def __init__(self, nx: int, ny: int, ix: int = 0, iy: int = 0) -> None:
         self.nx, self.ny = nx, ny
         self.ix, self.iy = ix, iy
-        self.logo_cells: set = set()
+        self.logo_cells: set[tuple[int, int]] = set()
         self.maze_map = [[Cell(x, y) for y in range(ny)] for x in range(nx)]
 
     def cell_at(self, x: int, y: int) -> Cell:
         return self.maze_map[x][y]
 
-    def get_unvisited_neighbors(self, cell: Cell) -> list:
+    def get_unvisited_neighbors(self, cell: Cell) -> list[tuple[str, Cell]]:
         neighbors = []
         delta = {'N': (0, -1), 'S': (0, 1), 'E': (1, 0), 'W': (-1, 0)}
         for direction, (dx, dy) in delta.items():
@@ -116,7 +116,7 @@ class Maze:
             else:
                 broken += 1
 
-    def generate_maze(self, config: dict) -> None:
+    def generate_maze(self, config: dict[str, Any]) -> None:
         self.logo_cells = set()
         if config["seed"] is not None:
             random.seed(config["seed"])
@@ -137,7 +137,7 @@ class Maze:
         if config["42_pattern"]:
             n -= 18
 
-        cell_stack: list = []
+        cell_stack: list[Cell] = []
         current_cell = self.cell_at(self.ix, self.iy)
         current_cell.visited = True
         nv = 1
@@ -179,7 +179,7 @@ class Maze:
             lines.append(row)
         return lines
 
-    def write_output(self, config: dict, path: str) -> None:
+    def write_output(self, config: dict[str, Any], path: str) -> None:
         lines = self.to_hex()
         entry = config["entry"]
         exit_ = config["exit"]
@@ -192,7 +192,7 @@ class Maze:
             f.write(f"{exit_[0]}, {exit_[1]}\n")
             f.write(f"{path}\n")
 
-    def Loop_erased_random_walk(self, config: dict) -> None:
+    def Loop_erased_random_walk(self, config: dict[str, Any]) -> None:
         if config["seed"] is not None:
             random.seed(config["seed"])
         else:
@@ -207,7 +207,7 @@ class Maze:
                 raise ValueError("ENTRY point conflicts with the 42 pattern")
             if exit_ in self.logo_cells:
                 raise ValueError("EXIT point conflicts with the 42 pattern")
-        valid_cells: set = set()
+        valid_cells: set[Cell] = set()
         for row in self.maze_map:
             temp_row = row.copy()
             for cell in temp_row:
@@ -223,7 +223,7 @@ class Maze:
             current_path = []
             current_cell = random.choice(list(valid_cells))
             current_path.append(current_cell)
-            prev_cell = None
+            prev_cell: Tuple[str, Cell] = ("Na", current_cell)
             while not current_cell.in_maze:
                 neighbours = self.get_unvisited_neighbors(current_cell)
                 if prev_cell in neighbours:
@@ -234,7 +234,8 @@ class Maze:
                 elif neighbour in current_path and not neighbour.in_maze:
                     index = current_path.index(neighbour) + 1
                     current_path = current_path[:index]
-                prev_cell = current_path[-1]
+                prev_cell = (current_cell.wall_pairs[direction],
+                             current_path[-1])
                 current_cell = neighbour
             self.build_path(current_path)
             valid_cells = self.prune_valid(valid_cells)
@@ -242,7 +243,7 @@ class Maze:
         if not config["perfect"]:
             self.make_imperfect()
 
-    def build_path(self, current_path: list) -> None:
+    def build_path(self, current_path: list[Cell]) -> None:
         prev_cell = current_path[0]
         for cell in current_path:
             cell.in_maze = True
@@ -257,14 +258,14 @@ class Maze:
                         prev_cell.open_path(cell, direction)
             prev_cell = cell
 
-    def prune_valid(self, valid_cells: set) -> set:
+    def prune_valid(self, valid_cells: set[Cell]) -> set[Cell]:
         output_set = valid_cells.copy()
         for cell in valid_cells:
             if cell.in_maze:
                 output_set.remove(cell)
         return (output_set)
 
-    def get_neighbors(self, x: int, y: int) -> list:
+    def get_neighbors(self, x: int, y: int) -> list[Tuple[int, int, Any]]:
         directions = {
             'N': (0, -1),
             'S': (0, 1),
@@ -280,10 +281,10 @@ class Maze:
                     neighbors.append((nx, ny, dir_name))
         return neighbors
 
-    def bfs_solver(self, start: tuple, end: tuple) -> str:
+    def bfs_solver(self, start: Tuple[int, int], end: Tuple[int, int]) -> str:
         queue = deque([start])
         visited = set([start])
-        parent: dict[tuple, Any] = {start: None}
+        parent: dict[tuple[int, int], Any] = {start: None}
         direction_from_parent = {start: None}
         while queue:
             current = queue.popleft()
@@ -297,7 +298,7 @@ class Maze:
                     direction_from_parent[(nx, ny)] = dir_name
         if end not in parent:
             return "Maze not solveable"
-        path: list = []
+        path: list[Any] = []
         current = end
         while current != start:
             path.append(direction_from_parent[current])

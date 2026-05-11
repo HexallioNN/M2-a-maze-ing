@@ -4,6 +4,7 @@ from config import load_config
 from mazegen.maze import Maze
 from timeit import default_timer as timer
 from Display import Display
+from typing import Any
 
 
 def mymouse(button: int, x: int, y: int, displaydata: Display) -> None:
@@ -182,7 +183,7 @@ def new_maze_stuff(displaydata: Display) -> None:
         displaydata.loading = False
 
 
-def update_configs(key_value: tuple) -> None:
+def update_configs(key_value: tuple[Any, Any]) -> None:
     key_new, value_new = key_value
     try:
         config = load_config("config.txt")

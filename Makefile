@@ -1,5 +1,5 @@
-VENV_NAME = a_maze_ing_env
-PYTHON = ${VENV_NAME}/bin/python
+VENV_NAME = venv
+PYTHON = ${VENV_NAME}/bin/python3
 
 
 install:
@@ -16,8 +16,8 @@ clean:
 	rm -rf .mypy_cache
 
 lint:
-	-m flake8 .
-	python3 -m mypy . \
+	flake8 --exclude=./venv,mlx .
+	${PYTHON} -m mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \
 		--ignore-missing-imports \
@@ -27,8 +27,8 @@ lint:
 		--exclude '^(venv|\.venv|env|mlx)/'
 
 lint-strict:
-	-m flake8 .
-	python3 -m mypy . \
+	flake8 --exclude=./venv,mlx .
+	${PYTHON} -m mypy . \
 		--strict \
 		--explicit-package-bases \
 		--exclude '^(venv|\.venv|env|mlx)/'

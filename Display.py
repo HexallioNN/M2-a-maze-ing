@@ -52,12 +52,12 @@ class Display():
                 "path_colour": (0xEEE9CB16).to_bytes(4, "little")
             },
             ]
-    neighbours: set[tuple] = set()
-    filled_in_cells: set[tuple] = set()
+    neighbours: set[tuple[int, int]] = set()
+    filled_in_cells: set[tuple[int, int]] = set()
     path_pos = 0
 
     def __init__(self, m: Mlx, mlx_ptr: int, win_ptr: int,
-                 dimensions: tuple) -> None:
+                 dimensions: tuple[int, int]) -> None:
         self.m = m
         self.mlx_ptr = mlx_ptr
         self.win_ptr = win_ptr
@@ -131,7 +131,7 @@ class Display():
         self.center_x = int((self.maze_width_pixels / 2) + self.offset_hor)
         self.center_y = int((self.maze_height_pixels / 2) + self.offset_ver)
 
-    def calc_pos(self, coords: tuple) -> tuple:
+    def calc_pos(self, coords: tuple[int, int]) -> tuple[int, int]:
         x, y = coords
         x = (int(x) * self.ratio) + int(self.offset_hor / 4)
         y = (int(y) * self.ratio) + int(self.offset_ver)

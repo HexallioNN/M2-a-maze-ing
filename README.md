@@ -127,18 +127,30 @@ EESEEESESWWWNWSSSWNNWSSSSENEESEENNESSSSSENNESSEESSENNESEESSWWSEEENNENESENESSS
 
 ## Chosen Algorithm
 
-The project uses a randomized maze generation algorithm based on recursive carving/backtracking principles.
+This project uses two distinct algorithm for randomized maze generation. The first algorithm is a modified version of depth first search relying on recursive carving/backtracking principles. The second algorithm is an loop erased random walk algorithm
 
-The algorithm:
+The depth first search algorithm:
 1. Starts from an initial cell
 2. Randomly selects neighboring cells
 3. Removes walls between valid neighbors
 4. Continues until all cells are visited
 
+
+The loop erased random walk algorithm:
+1. Pick a random cell and marks this a part of the maze
+2. Pick a secondary random cell from the remaining valid cells and add it to path
+3. Randomly pick a neighbour from this second cell and add to path
+4. Repeat this process until the path reaches a cell thats in the maze
+5. If the path contains any loop cut the loop from the path
+6. remove the walls along the path and add all cell with in it too the maze
+7. repeat this with a new random cell until all cells are part if the maze
+
 The generated maze guarantees:
 - full connectivity,
 - no isolated sections,
 - and a valid path between entry and exit.
+
+A second algorithm was used 
 
 ---
 

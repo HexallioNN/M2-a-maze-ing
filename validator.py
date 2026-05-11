@@ -1,4 +1,7 @@
-def validate_config(data: dict) -> dict:
+from typing import Any
+
+
+def validate_config(data: dict[str, Any]) -> dict[str, Any]:
     required = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"]
     pattern = True
 
