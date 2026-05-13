@@ -130,6 +130,9 @@ def render_next_frame(display: Display) -> None:
             display.display_ui()
             display.ui_displayed = True
     elif display.clear and not display.cleared:
+        display.m.mlx_sync(display.mlx_ptr, 
+                           display.clear_maze(),
+                           display.win_ptr)
         display.clear_maze()
         if display.loading:
             display.img_to_window_mine(display.loading_img,

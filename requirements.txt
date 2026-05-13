@@ -1,3 +1,5 @@
 mypy >= 1.19.1
 build >= 1.4.0
+flake8 >= 7.3.0
 mlx @ file:./mlx-2.2-py3-none-any.whl
+mazegen @ file:./mazegen-1.0.0-py3-none-any.whl
