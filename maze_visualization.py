@@ -116,24 +116,29 @@ def close_window(display: Display) -> int:
 
 def render_next_frame(display: Display) -> None:
     if not display.ui_displayed:
-        if display.loading:
+        if display.loading and not display.running:
             display.img_to_window_mine(display.loading_img,
                                        int(display.width / 2) - 100,
                                        int(display.height / 2) - 50)
             display.loading = False
+            display.running = True
         elif display.start_up:
             display.parsing()
             display.clear_maze()
             display.start_up = False
             display.m.SYNC_WIN_FLUSH
         else:
-            display.display_ui()
+            display.m.mlx_sync(display.mlx_ptr,
+                               display.display_ui(),
+                               display.win_ptr)
             display.ui_displayed = True
     elif display.clear and not display.cleared:
-        display.m.mlx_sync(display.mlx_ptr, 
+        display.m.mlx_sync(display.mlx_ptr,
                            display.clear_maze(),
                            display.win_ptr)
-        display.clear_maze()
+        display.m.mlx_sync(display.mlx_ptr,
+                           display.display_ui(),
+                           display.win_ptr)
         if display.loading:
             display.img_to_window_mine(display.loading_img,
                                        display.center_x - 100,
@@ -145,6 +150,7 @@ def render_next_frame(display: Display) -> None:
     elif display.loading:
         new_maze_stuff(display)
         display.clear = True
+        display.loading = False
     elif not display.maze_displayed:
         if not display.logo_displayed:
             display.start = timer()
@@ -183,7 +189,7 @@ def new_maze_stuff(displaydata: Display) -> None:
     maze.write_output(config, path)
     if not displaydata.start_up:
         displaydata.parsing()
-        displaydata.loading = False
+        # displaydata.loading = False
 
 
 def update_configs(key_value: tuple[Any, Any]) -> None:

@@ -11,6 +11,7 @@ class Display():
     path_displayed = False
     display_path = False
     ui_displayed = False
+    running = False
     clear = False
     cleared = False
     logo_displayed = False
