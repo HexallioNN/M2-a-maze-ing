@@ -1,10 +1,19 @@
 from mlx import Mlx
-from images_prerender import pre_render_tiles as pre_render_images
+from images_prerender import pre_render_tiles
 from images_prerender import pre_render_button, pre_render_ui_env, \
     pre_render_empty, ImgData, pre_loading
-
+"""
+This module Holds the Display Class for use in the Maze_visualisation program
+"""
 
 class Display():
+    """
+    This class governs a Display managed by an instance mini library X
+    
+    This class hold various flag to tract the state of the display in
+    relation to the rendering of the maze and handles the internal logic
+    of the animation with this project.
+    """
     loading = True
     start_up = True
     maze_displayed = False
@@ -59,6 +68,23 @@ class Display():
 
     def __init__(self, m: Mlx, mlx_ptr: int, win_ptr: int,
                  dimensions: tuple[int, int]) -> None:
+        """
+        This function initializes the Display opening a window
+
+        this function handles a window based on the provided arguments
+        
+        Args:
+            m: this represent an Mlx object, an instance of the mini lib x
+            module
+            mlx_ptr: this represents a pointer to this same object, as the 
+            mlx module has a primitive python wrapper this is stored as an int
+            win_ptr: is the pointer to a window created by the Mlx module
+            dimensions: is a tuple holding the height and width of the window
+            in pixels
+
+        This function then stores this data internally for ready acces for all
+          operations on this window
+        """
         self.m = m
         self.mlx_ptr = mlx_ptr
         self.win_ptr = win_ptr
@@ -67,15 +93,33 @@ class Display():
         self.loading_img = pre_loading(self.m, self.mlx_ptr)
 
     def img_to_window_mine(self, image: ImgData, x: int, y: int) -> int:
+        """This function places a picture on the window at the given coordinates"""
         self.m.mlx_put_image_to_window(self.mlx_ptr, self.win_ptr,
                                        image.img, x, y)
         return (0)
 
     def parsing(self) -> None:
+        """
+        This function reads the maze.txt file to generate the base maze
+
+        This function takes no arguments directly but it does rely on 
+        the presence of the confix.txt file
+
+        if config.txt is present and complete it will read the maze in the
+        designated output file from where it stores this internally in an
+        two dimensional array for later referencing.
+
+        afterwards it calls on the functions:
+            calc_ratio
+            pre_render_images
+            pre_render_ui
+            display_ui
+        """
         maze: list[list[str]] = []
-        with open("config.txt", "r") as config_file:
-            configs = dict(line.strip().split("=") for line in config_file)
-            file_name = configs["OUTPUT_FILE"]
+        try:
+            with open("config.txt", "r") as config_file:
+                configs = dict(line.strip().split("=") for line in config_file)
+                file_name = configs["OUTPUT_FILE"]
             cells_logo = set()
             valid_cells = set()
             x, y = (0, 0)
@@ -101,22 +145,26 @@ class Display():
                         Row = line.strip().split(',')
                     if len(Row) != 0:
                         maze.append(Row)
-        self.logo_cells = cells_logo
-        self.valid_cells = valid_cells
-        entry = maze[-3]
-        self.entry = (int(entry[0]), int(entry[1]))
-        exit = maze[-2]
-        self.exit = (int(exit[0]), int(exit[1]))
-        self.path = maze[-1]
-        self.maze = maze[:-3]
-        self.maze_width = len(maze[0])
-        self.maze_height = len(self.maze)
-        self.calc_ratio()
-        self.pre_render_images()
-        self.pre_render_ui()
-        self.display_ui()
+        except FileNotFoundError as e:
+            print(f"Error parsing the maze: {e}")
+        else:
+            self.logo_cells = cells_logo
+            self.valid_cells = valid_cells
+            entry = maze[-3]
+            self.entry = (int(entry[0]), int(entry[1]))
+            exit = maze[-2]
+            self.exit = (int(exit[0]), int(exit[1]))
+            self.path = maze[-1]
+            self.maze = maze[:-3]
+            self.maze_width = len(maze[0])
+            self.maze_height = len(self.maze)
+            self.calc_ratio()
+            self.pre_render_images()
+            self.pre_render_ui()
+            self.display_ui()
 
     def calc_ratio(self) -> None:
+        """This function determines the size of the tiles of the maze"""
         effective_width = self.width - self.sidebar - \
             (self.offset_hor / 2)
         effective_height = self.height - (self.offset_ver * 2)
@@ -133,17 +181,25 @@ class Display():
         self.center_y = int((self.maze_height_pixels / 2) + self.offset_ver)
 
     def calc_pos(self, coords: tuple[int, int]) -> tuple[int, int]:
+        """this function turn an x, y coordinate into its tile equivalent"""
         x, y = coords
         x = (int(x) * self.ratio) + int(self.offset_hor / 4)
         y = (int(y) * self.ratio) + int(self.offset_ver)
         return (x, y)
 
     def pre_render_images(self) -> int:
-        self.images = pre_render_images(self.m, self.mlx_ptr, self.ratio,
+        """
+        This function call on the pre_render_tiles
+
+        this uses the file images_prerender together with the calculated
+        ratios to create the tiles used in the later display
+        """
+        self.images = pre_render_tiles(self.m, self.mlx_ptr, self.ratio,
                                         self.colours[0])
         return (0)
 
     def pre_render_ui(self) -> None:
+        """"This function governs the rendering of the ui enviroment"""
         self.buttons = pre_render_button(self.m, self.mlx_ptr)
         self.ui = pre_render_ui_env(self.m, self.mlx_ptr, self.dimensions,
                                     (self.maze_width_pixels,
@@ -154,6 +210,7 @@ class Display():
         self.loading_img = pre_loading(self.m, self.mlx_ptr)
 
     def clear_maze(self) -> int:
+        """This function governs the clearing of the maze from the display"""
         self.logo_displayed = False
         self.maze_displayed = False
         self.img_to_window_mine(self.maze_clear, int(self.offset_hor / 4),
@@ -161,6 +218,7 @@ class Display():
         return (0)
 
     def place_logo(self) -> int:
+        """This function places the logo cells on the display"""
         for cell in self.logo_cells:
             x, y = cell
             x = (x * self.ratio) + int((self.offset_hor / 4) -
@@ -170,6 +228,24 @@ class Display():
         return (0)
 
     def grow_maze(self) -> int:
+        """"
+        This function governs the maze growth animation
+
+        When ever this function is called it goes through one cycle
+        of maze growth
+        to this end it keeps a set of neighbour cells that hold all
+        cells the maze connects too through a path and whose neighbour
+        is currently displayed.
+
+        the first iteration this set will be empty so it will be
+        populated based on the size of the maze, if it will take more than
+        500 tiles to fill wholly the starting points are top left and
+        bottom right
+        more then a 1000 it will start in all four corners
+        else it will start only top left
+
+        after displaying all tile it will call place_entry_exit
+        """
         new_neighbours = set()
         if self.valid_cells - self.filled_in_cells == set():
             self.filled_in_cells = set()
@@ -208,6 +284,13 @@ class Display():
         return (0)
 
     def place_entry_exit(self) -> int:
+        """
+        Places the entry and exit points of the maze
+
+        this function places the entry and exit points
+        of the maze on the display after whichi it flags
+        the maze as displayed
+        """
         x_start, y_start = self.calc_pos(self.entry)
         x_end, y_end = self.calc_pos(self.exit)
         start = self.images[20]
@@ -218,6 +301,15 @@ class Display():
         return (0)
 
     def maze_update(self) -> int:
+        """
+        This function governs the wholesale update of the maze visual
+
+        Whereas the maze_grow function exists to slowly grow the maze in an
+        animation this function exists to place and update the entire maze
+        instantly
+        this is used both to finish up should the maze grow take too long
+        as it is used to update the colour of the maze
+        """
         x = int(self.offset_hor / 4)
         y = self.offset_ver
         self.m.mlx_do_sync(self.mlx_ptr)
@@ -236,6 +328,13 @@ class Display():
         return (0)
 
     def path_display(self) -> int:
+        """
+        This function governs the animating of the path
+
+        every call this function grows the shortest path through
+        the maze by one step, until the path reaches its end upon which
+        the function flags it as complete
+        """
         x, y = self.path_coords
         pos = self.path_pos
         step_size = self.ratio
@@ -274,6 +373,7 @@ class Display():
         return (0)
 
     def display_ui(self) -> int:
+        """This function displays the ui enviroment"""
         x, y = (int(self.width - self.sidebar), 0)
         self.img_to_window_mine(self.ui, 0, 0)
         for button in self.buttons:
@@ -282,6 +382,7 @@ class Display():
         return (0)
 
     def update_logo_colour(self, colour: bytes) -> int:
+        """This function updates the Colour of the logo Tiles"""
         for colourset in self.colours:
             colourset["logo_colour"] = colour
         return (0)
