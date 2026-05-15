@@ -1,10 +1,30 @@
 from mlx import Mlx
 from math import sqrt, pow, sin, cos, pi
+"""
+This module deals with the prerendering of the images
+
+Classes:
+    ImgData: this class hold the data of the rendered images
+    Button: this holds the ImgData of the button
+    Tile: this holds the ImgData of the Tiles with other variables
+"""
 
 
 class ImgData():
-    """Structure for image data"""
+    """
+    Structure for image data
+
+    Parameters:
+        img: hold a pointer to an image object
+        width: the width in pixels
+        height: the height in pixels
+        data: an array holding the information in bytes
+        sl: the amount of bytes per horizontal line in the image
+        bpp: the bytes per pixel
+        iformat: indicator of the format for back end use
+    """
     def __init__(self) -> None:
+        """"Initialises the Imgdata to null values"""
         self.img = None
         self.width = 0
         self.height = 0
@@ -15,6 +35,7 @@ class ImgData():
 
 
 class Button():
+    """This class holds the variables for the button"""
     def __init__(self, body: str, colour: bytes):
         self.image = ImgData()
         self.body = body
@@ -22,6 +43,7 @@ class Button():
 
 
 class Tile():
+    """This class holds the variables for the button"""
     north = False
     east = False
     south = False
@@ -31,6 +53,13 @@ class Tile():
     end = False
 
     def __init__(self, value: int):
+        """
+        Initialises based on an interger value
+
+        this function takes an interger values that
+        if its below 16 codes for which paths should be present
+        on the tile
+        """
         self.image = ImgData()
         self.value = value
         if self.value >> 0 & 1:
@@ -49,6 +78,7 @@ class Tile():
             self.end = True
 
 
+"""Here lists of the tiles are created"""
 tile_1 = Tile(0b0000)
 tile_2 = Tile(0b0001)
 tile_3 = Tile(0b0010)
@@ -83,6 +113,7 @@ symbol_tiles = ([tile_path_north, tile_path_east,
 
 def init_tiles(m: Mlx, mlx_ptr: int, height: int, pre_tiles: list[Tile]) \
                 -> list[Tile]:
+    """This function bulk assigns basic Imgdata to the tiles"""
     x, y = height, height
     for tile in pre_tiles:
         tile.image.img = m.mlx_new_image(mlx_ptr, x, y)
@@ -101,6 +132,12 @@ def special_tiles(m: Mlx, mlx_ptr: int, height: int,
                       "path_colour": (0xEEFF0000).to_bytes(4, "little")
                       }
                   ) -> list[Tile]:
+    """
+    This function creates the special/non path tiles
+
+    by selecting the tiles that have no paths or other special markers
+    this function renders different images for them
+    """
     path_colour = Colours["path_colour"]
     transparent = (0x00000000).to_bytes(4, "little")
     y = height
@@ -153,6 +190,7 @@ def pre_render_tiles(m: Mlx, mlx_ptr: int, height: int,
                          "path_colour": (0xEEFFFF00).to_bytes(4, "little")
                          }
                      ) -> list[Tile]:
+    """This function loopst through the tiles and created an image"""
     wall_colour = Colours["wall_colour"]
     tunnel_colour = Colours["tunnel_colour"]
     logo_colour = Colours["logo_colour"]
@@ -199,6 +237,7 @@ def pre_render_tiles(m: Mlx, mlx_ptr: int, height: int,
     return (tiles + other_tiles)
 
 
+"""List of button is being created here"""
 regenerate = Button("button_img/button_regenerate-maze.png",
                     (0xEE00EE00).to_bytes(4, 'little'))
 show_path = Button("button_img/button_display-path.png",
@@ -224,6 +263,9 @@ boxes = [unchecked_box, checked_box]
 
 def pre_render_ui_env(m: Mlx, mlx_ptr: int, dimensions: tuple[int, int, int],
                       empty_space: tuple[int, int]) -> ImgData:
+    """
+    This renders the ui enviroment and returns it as ImgData to be displayed
+    """
     x, y, sidebar = dimensions
     image = ImgData()
     image.img = m.mlx_new_image(mlx_ptr, x, y)
@@ -248,32 +290,12 @@ def pre_render_ui_env(m: Mlx, mlx_ptr: int, dimensions: tuple[int, int, int],
             image.data[offset:offset+4] = colour
         elif offset % sl >= empty_space_hor * 4 + 40:
             image.data[offset:offset+4] = colour
-    # boxes_1 = init_tiles(m, mlx_ptr, 80, boxes)
-    # sl = boxes[0].image.sl
-    # height = 80
-    # bpp = boxes[0].image.bpp
-    # h_bpp = bpp / 2
-    # radius = (height / 2) - 10
-    # r_squared = pow(radius, 2)
-    # for box in boxes_1:
-    #     for offset in range(0, sl * height, 4):
-    #         if r_squared > ((pow((offset % sl - (sl / 2)), 2) / h_bpp +
-    #                         pow((offset / sl) - (height / 2), 2))):
-    #             box.image.data[offset:offset+4] = \
-    #                 (0xFF000000).to_bytes(4, 'little')
-    #         elif (offset % sl < 4 or offset % sl >= 316) or \
-    #              (offset / sl < 1 or offset / sl >= 79):
-    #             box.image.data[offset:offset+4] = \
-    #                 (0xFF101010).to_bytes(4, 'little')
-    #         else:
-    #             box.image.data[offset:offset+4] = \
-    #                 (0xFF808080).to_bytes(4, 'little')
-    # ui = {"ui": image, "boxes": boxes_1}
     return (image)
 
 
 def pre_render_empty(m: Mlx, mlx_ptr: int,
                      dimensions: tuple[int, int]) -> ImgData:
+    """This function renders a black screen to be used to clear the maze"""
     x, y = dimensions
     image = ImgData()
     image.img = m.mlx_new_image(mlx_ptr, x, y)
@@ -289,18 +311,25 @@ def pre_render_empty(m: Mlx, mlx_ptr: int,
 
 
 def pre_render_button(m: Mlx, mlx_ptr: int) -> list[Button]:
+    """
+    This function converts a png file to ImgData to be displayed
+
+    Should there be an error in the converting it defaults to
+    a uniform rectangle based on the colour stored in the button object
+    """
     for button in buttons:
         try:
             url = button.body
             buffer_tuples = m.mlx_png_file_to_image(
                 mlx_ptr, url)
+            if not buffer_tuples[0]:
+                raise ValueError("Button error")
             button.image.img = buffer_tuples[0]
             button.image.width = buffer_tuples[1]
             button.image.height = buffer_tuples[2]
             button.image.data, button.image.bpp, button.image.sl, \
                 button.image.iformat = m.mlx_get_data_addr(button.image.img)
-        except ValueError as e:
-            print(e)
+        except ValueError:
             x, y = (200, 100)
             button.image.img = m.mlx_new_image(mlx_ptr, x, y)
             button.image.width = x
@@ -310,18 +339,34 @@ def pre_render_button(m: Mlx, mlx_ptr: int) -> list[Button]:
             m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, button.image.img)
             for offset in range(0, button.image.sl * button.image.height, 4):
                 button.image.data[offset:offset+4] = \
-                    (0xFFFF0000).to_bytes(4, 'little')
+                    button.colour
     return (buttons)
 
 
 def pre_loading(m: Mlx, mlx_ptr: int) -> ImgData:
+    """This function renders the Loading sign"""
     image = ImgData()
     url = "button_img/loading.png"
-    buffer_tuples = m.mlx_png_file_to_image(
-        mlx_ptr, url)
-    image.img = buffer_tuples[0]
-    image.width = buffer_tuples[1]
-    image.height = buffer_tuples[2]
-    image.data, image.bpp, image.sl, \
-        image.iformat = m.mlx_get_data_addr(image.img)
-    return (image)
+    try:
+        buffer_tuples = m.mlx_png_file_to_image(
+            mlx_ptr, url)
+        if not buffer_tuples[0]:
+            raise ValueError("Button error")
+        image.img = buffer_tuples[0]
+        image.width = buffer_tuples[1]
+        image.height = buffer_tuples[2]
+        image.data, image.bpp, image.sl, \
+            image.iformat = m.mlx_get_data_addr(image.img)
+    except ValueError:
+        x, y = (200, 100)
+        image.img = m.mlx_new_image(mlx_ptr, x, y)
+        image.width = x
+        image.height = y
+        image.data, image.bpp, image.sl, \
+            image.iformat = m.mlx_get_data_addr(image.img)
+        m.mlx_sync(mlx_ptr, Mlx.SYNC_IMAGE_WRITABLE, image.img)
+        for offset in range(0, image.sl * image.height, 4):
+            image.data[offset:offset+4] = \
+                (0x60808080).to_bytes(4, 'little')
+    finally:
+        return (image)

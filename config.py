@@ -3,6 +3,16 @@ from typing import Any
 
 
 def load_config(path: str) -> dict[Any, Any]:
+    """Reads through the config.txt file, formats it so that it works with
+    validate_config calls validate_config and returns the formatted version
+    of config.txt
+
+    Parameters:
+    path (str): name of the config.txt
+
+    Returns:
+    dict: Formatted version of config.txt
+    """
     data: dict[str, str] = {}
 
     with open(path) as f:

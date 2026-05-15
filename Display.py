@@ -6,10 +6,11 @@ from images_prerender import pre_render_button, pre_render_ui_env, \
 This module Holds the Display Class for use in the Maze_visualisation program
 """
 
+
 class Display():
     """
     This class governs a Display managed by an instance mini library X
-    
+
     This class hold various flag to tract the state of the display in
     relation to the rendering of the maze and handles the internal logic
     of the animation with this project.
@@ -72,11 +73,11 @@ class Display():
         This function initializes the Display opening a window
 
         this function handles a window based on the provided arguments
-        
+
         Args:
             m: this represent an Mlx object, an instance of the mini lib x
             module
-            mlx_ptr: this represents a pointer to this same object, as the 
+            mlx_ptr: this represents a pointer to this same object, as the
             mlx module has a primitive python wrapper this is stored as an int
             win_ptr: is the pointer to a window created by the Mlx module
             dimensions: is a tuple holding the height and width of the window
@@ -93,7 +94,8 @@ class Display():
         self.loading_img = pre_loading(self.m, self.mlx_ptr)
 
     def img_to_window_mine(self, image: ImgData, x: int, y: int) -> int:
-        """This function places a picture on the window at the given coordinates"""
+        """This function places a picture on the window at the given \
+            coordinates"""
         self.m.mlx_put_image_to_window(self.mlx_ptr, self.win_ptr,
                                        image.img, x, y)
         return (0)
@@ -102,7 +104,7 @@ class Display():
         """
         This function reads the maze.txt file to generate the base maze
 
-        This function takes no arguments directly but it does rely on 
+        This function takes no arguments directly but it does rely on
         the presence of the confix.txt file
 
         if config.txt is present and complete it will read the maze in the
@@ -195,7 +197,7 @@ class Display():
         ratios to create the tiles used in the later display
         """
         self.images = pre_render_tiles(self.m, self.mlx_ptr, self.ratio,
-                                        self.colours[0])
+                                       self.colours[0])
         return (0)
 
     def pre_render_ui(self) -> None:

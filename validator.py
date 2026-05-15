@@ -2,6 +2,15 @@ from typing import Any
 
 
 def validate_config(data: dict[str, Any]) -> dict[str, Any]:
+    """This function checks the config.txt file and returns the formatted
+      results with error handling
+
+      Parameters:
+      data (dict[str, Any]): Content of config.txt file in a dict form
+
+      Returns:
+      dict: formatted config.txt
+    """
     required = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"]
     pattern = True
 

@@ -5,9 +5,34 @@ from mazegen.maze import Maze
 from timeit import default_timer as timer
 from Display import Display
 from typing import Any
+"""
+This module governs the visualization of the maze using mlx
+
+In this module al logic in regard to the interface and deploying
+of the mazegen module is housed, using the Display class from the
+Display.py module and the images from the images_prerender module
+this module determines what the render to the display when and responds
+key and mouse events
+"""
 
 
 def mymouse(button: int, x: int, y: int, displaydata: Display) -> None:
+    """
+    This function responds to mouse events
+
+    Args:
+        button: this is the button pressed on the mouse
+        with 1 representing the left mouse button 2 the right,
+        3 represent clicking the scroll wheel and 4 and five are
+        scrolling up and down respectively
+        x, y: these represent the x and y coordinates of where the
+        mouse event occured, this is in pixels
+        displaydata: this is the Display on which the event occured
+
+    this function then checks where on the screen the event occured
+    and wether it was a left mouse click, it then updates the flags
+    in displaydata accordingly
+    """
     m = displaydata.m
     win_ptr = displaydata.win_ptr
     mlx_ptr = displaydata.mlx_ptr
@@ -70,6 +95,20 @@ def mymouse(button: int, x: int, y: int, displaydata: Display) -> None:
 
 
 def mykey(keynum: int, displaydata: Display) -> Display:
+    """
+    This is an outdated function that intercept keyboard events
+
+    Args:
+        keynum: this is an interger representation of the key
+        pressed
+        displaydata: Is the display we want the event to be
+        associated with
+
+        much like the mymouse function this function deals with
+        updating whats on the display based on the events but it
+        is no longer the primarily used function for this and has been
+        left primarly for later references
+    """
     m = displaydata.m
     win_ptr = displaydata.win_ptr
     mlx_ptr = displaydata.mlx_ptr
@@ -108,6 +147,7 @@ def mykey(keynum: int, displaydata: Display) -> Display:
 
 
 def close_window(display: Display) -> int:
+    """This function Closes the window"""
     print("closing")
     display.m.mlx_destroy_window(display.mlx_ptr, display.win_ptr)
     display.m.mlx_loop_exit(display.mlx_ptr)
@@ -115,6 +155,13 @@ def close_window(display: Display) -> int:
 
 
 def render_next_frame(display: Display) -> None:
+    """
+    This function governs the rendering of the frame displayed
+
+    This function is the back bone of the animations used in
+    this project, using the flag in the Display class it allows
+    for frame by frame updating of processes
+    """
     if not display.ui_displayed:
         if display.loading and not display.running:
             display.img_to_window_mine(display.loading_img,
@@ -174,6 +221,7 @@ def render_next_frame(display: Display) -> None:
 
 
 def new_maze_stuff(displaydata: Display) -> None:
+    """This function governs the regeration of the maze"""
     try:
         config = load_config("config.txt")
     except FileNotFoundError:
@@ -193,6 +241,7 @@ def new_maze_stuff(displaydata: Display) -> None:
 
 
 def update_configs(key_value: tuple[Any, Any]) -> None:
+    """This function updates the configs.txt of the maze"""
     key_new, value_new = key_value
     try:
         config = load_config("config.txt")
@@ -211,7 +260,7 @@ def update_configs(key_value: tuple[Any, Any]) -> None:
                     value = value_new
             elif "(" in str(value):
                 x, y = value
-                value = f"{x},{y}"
+                value = f"{x}, {y}"
             if key == "seed":
                 value = randint(0, 999999)
             i += 1
@@ -219,6 +268,7 @@ def update_configs(key_value: tuple[Any, Any]) -> None:
 
 
 def start_visual() -> None:
+    """This function starts the visualization of the maze"""
     m = Mlx()
     mlx_ptr = m.mlx_init()
     window_width = 1700

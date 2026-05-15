@@ -1,8 +1,8 @@
 VENV = venv
-PYTHON = ${VENV}/bin/python3
-PACKAGE = mazegen-1.0.0.tar.gz
+PYTHON = $(VENV)/bin/python3
+PACKAGE = mazegen-1.0.0.tar.gz  # name of the mazegen tar file
 EXTRACT_DIR = mazegen-1.0.0
-
+PIP = $(VENV)/bin/pip
 
 .PHONY: install run lint lint-strict clean debug unpack
 
@@ -21,10 +21,14 @@ ifeq ("$(wildcard $(VENV))", "")
 else
 	@echo "Virtual enviroment already exists"
 endif
-	@$(PYTHON) -m pip install -r requirements.txt
+	@$(PIP) install -r requirements.txt
 	@echo "Dependencies and mazegen installed"
 
 run:
+ifeq ("$(wildcard $(VENV))", "")
+	@echo "No virtual enviroment detected running make install"
+	@make install
+endif
 	@$(PYTHON) a_maze_ing.py config.txt
 
 debug:
@@ -35,8 +39,9 @@ clean:
 	rm -rf .mypy_cache
 
 lint:
-	flake8 --exclude=./venv,mlx .
-	${PYTHON} -m mypy . \
+	python3 -m flake8 . \
+		--exclude ./$(VENV)
+	python3 -m mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \
 		--ignore-missing-imports \
@@ -46,8 +51,9 @@ lint:
 		--exclude '^(venv|\.venv|env|mlx)/'
 
 lint-strict:
-	flake8 --exclude=./venv,mlx .
-	${PYTHON} -m mypy . \
+	python3 -m flake8 . \
+		--exclude ./$(VENV)
+	python3 -m mypy . \
 		--strict \
 		--explicit-package-bases \
 		--ignore-missing-imports \
